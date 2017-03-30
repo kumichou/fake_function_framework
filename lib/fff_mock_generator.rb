@@ -6,7 +6,7 @@ class FffMockGenerator
   def self.create_mock_header(module_name, mock_name, parsed_header, pre_includes=nil,
     post_includes=nil)
     output = StringIO.new
-    write_opening_include_guard(mock_name, output)
+    write_opening_include_guard(get_safe_mock_name(mock_name), output)
     output.puts
     write_extra_includes(pre_includes, output)
     write_header_includes(module_name, output)
@@ -16,9 +16,9 @@ class FffMockGenerator
     output.puts
     write_function_declarations(parsed_header, output)
     output.puts
-    write_control_function_prototypes(mock_name, output)
+    write_control_function_prototypes(get_safe_mock_name(mock_name), output)
     output.puts
-    write_closing_include_guard(mock_name, output)
+    write_closing_include_guard(get_safe_mock_name(mock_name), output)
     output.string
   end
 
@@ -31,7 +31,7 @@ class FffMockGenerator
     output.puts
     write_function_definitions(parsed_header, output)
     output.puts
-    write_control_function_definitions(mock_name, parsed_header, output)
+    write_control_function_definitions(get_safe_mock_name(mock_name), parsed_header, output)
     output.string
   end
 
@@ -90,7 +90,7 @@ class FffMockGenerator
     # In the init function, reset the FFF globals. These are used for things
     # like the call history.
     output.puts "    FFF_RESET_HISTORY();"
-    
+
     # Also, reset all of the fakes.
     if parsed_header[:functions]
       parsed_header[:functions].each do |function|
@@ -160,4 +160,9 @@ class FffMockGenerator
     end
   end
 
+  def self.get_safe_mock_name(mock_name)
+      mock_name.gsub('-','_')
+  end
+
 end
+
